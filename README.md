@@ -1,3 +1,42 @@
+## 应用fastJson生成自测用例
+
+例子：
+
+```
+Properties properties = new Properties();
+String json = GenerateBeanUtils.generateTestData(ChoiceHouseBean.class, properties);
+```
+
+### Properties设置默认值
+
+```
+public class Properties {
+
+    public Boolean aBoolean = true;
+
+    public int aInt = 1;
+
+    public long aLong = 30000;
+
+    public String aString = "就不呵呵呵";
+
+    public double aDouble = 400.00;
+
+}
+```
+
+### javaBean 填写测试用例内容
+
+```
+private int qdpCode = 100;
+private int pageNo = 0;
+private int pageSize = 20;
+private int toalCount = 100;
+private String message = "成功";
+private String toast;
+private List<ListEntity> reportDetail;
+```
+
 # fastjson
 
 [![Build Status](https://travis-ci.org/alibaba/fastjson.svg?branch=android)](https://travis-ci.org/alibaba/fastjson)
