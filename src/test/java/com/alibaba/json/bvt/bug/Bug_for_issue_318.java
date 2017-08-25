@@ -16,7 +16,7 @@ public class Bug_for_issue_318 extends TestCase {
     public void test_for_issue() throws Exception {
         Person o1 = new Person("zhangsan", 20);
         Person o2 = new Person("liuXX", 30);
-        Person o3 = new Person("Test", 10);
+        Person o3 = new Person("TestBean", 10);
 
         List<Person> users = new ArrayList<Person>();
         users.add(o1);

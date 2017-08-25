@@ -3,9 +3,6 @@ package com.alibaba.json.test.sym;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.serializer.ValueFilter;
-import com.alibaba.json.test.sym.bean.ChoiceHouseBean;
-import com.alibaba.json.test.sym.bean.TestBean;
-import junit.framework.TestCase;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -14,102 +11,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by sym on 17/8/24.
+ * Created by sym on 17/8/25.
  */
-public class BeanTest extends TestCase {
-
-
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-
-    }
-
-    public void test() {
-
-       /* {
-            Utils.printLn(2);
-        }*/
-        Person person = new Person();
-        /*person.age = 27;
-        person.name = "sym";*/
-
-        /*ValueFilter valueFilter = new ValueFilter() {
-
-            public Object process(Object object, String name, Object value) {
-                try {
-                    Field field = object.getClass().getField(name);
-                    Class<?> clazz = field.getType();
-
-                    if (clazz == String.class) {
-                        if (value == null) {
-                            return "sym";
-                        }
-                    } else if (clazz == Integer.TYPE) {
-                        return 101;
-                    } else if (clazz == Boolean.TYPE) {
-                        return true;
-                    } else if (clazz == Long.TYPE) {
-                        return 1001.11;
-                    } else if (clazz == ArrayList.class) {
-                        value = new ArrayList<Person.Child>();
-                        List<Person.Child> list = (List<Person.Child>) value;
-                        for (int i = 0; i < 5; i++) {
-                            Person.Child child = new Person.Child();
-                            list.add(child);
-                        }
-
-                        return value;
-                    }
-
-                } catch (NoSuchFieldException e) {
-                    e.printStackTrace();
-                }
-
-
-                return null;
-            }
-        };*/
-
-        //String p = JSON.toJSONString(person, valueFilter, SerializerFeature.WriteMapNullValue);
-        /*String json = generateTestData(Person.class);
-
-        Utils.printLn(json);
-
-
-        Person person1 = JSON.parseObject(json, Person.class);
-        Utils.printLn(person1.age);
-
-        String properties = JSON.toJSONString(new Properties());
-        Utils.printLn(properties);*/
-
-        Properties p = new Properties();
-        String json = new GenerateBeanUtils().setListener(new GenerateBeanUtils.OnJsonHandleListener<Object>() {
-            public void onJsonHandle(Object object) {
-
-                if(object instanceof TestBean.DataEntity){
-                    TestBean.DataEntity dataEntity = (TestBean.DataEntity) object;
-                }
-
-            }
-
-        }).generateTestData(TestBean.class, p);
-
-        Utils.printLn(json);
-
-
-    }
+public class GenerateBeanUtils {
 
     /**
      * 生成测试数据
      *
      * @return
      */
-    public static <E> String generateTestData(final Class<E> clazz1) {
+    public <E> String generateTestData(Class<E> clazz1, final Properties properties) {
 
         String json = "";
-        final Properties properties = new Properties(); //配置默认值
         try {
+
             E instance = clazz1.newInstance();
 
             ValueFilter valueFilter = new ValueFilter() {
@@ -117,7 +32,12 @@ public class BeanTest extends TestCase {
                 public Object process(Object object, String name, Object value) {
                     try {
 
-                        Field field = object.getClass().getField(name);
+                        if (null != mListener) {
+                            mListener.onJsonHandle(object);
+                        }
+
+                        Field field = object.getClass().getDeclaredField(name);
+                        field.setAccessible(true);
                         Class<?> clazz = field.getType();
 
                         if (clazz == String.class) {
@@ -136,7 +56,7 @@ public class BeanTest extends TestCase {
                         } else if (clazz == Long.TYPE) {
 
                             return properties.aLong;
-                        } else if (clazz == ArrayList.class) {
+                        } else if (List.class.isAssignableFrom(clazz)) {
 
                             Type genericType = field.getGenericType();
                             if (genericType == null) {
@@ -156,6 +76,9 @@ public class BeanTest extends TestCase {
                             }
 
                             return value;
+                        } else {
+
+                            return clazz.newInstance();
                         }
 
                     } catch (NoSuchFieldException e) {
@@ -180,5 +103,21 @@ public class BeanTest extends TestCase {
         }
 
         return json;
+    }
+
+    public OnJsonHandleListener mListener;
+
+    public GenerateBeanUtils setListener(OnJsonHandleListener listener) {
+        this.mListener = listener;
+
+        return this;
+    }
+
+    public interface OnJsonHandleListener<E> {
+
+        /**
+         * @param object propertyName
+         */
+        public abstract  void onJsonHandle(E object);
     }
 }

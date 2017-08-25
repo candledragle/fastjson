@@ -1,7 +1,5 @@
 package com.alibaba.json.test.sym;
 
-import com.alibaba.fastjson.annotation.JSONField;
-
 import java.util.ArrayList;
 
 /**
@@ -10,28 +8,30 @@ import java.util.ArrayList;
 public class Person {
 
 
-    public String name;
+    public String name = "person";
     public int age;
     public boolean flag;
     public long l;
+
+    public Child aChild;
 
     public ArrayList<Child> childs;
 
     public ArrayList<Son> sons;
 
     public static class Child {
-        public String name;
+        public String name = "child";
         public int age;
     }
 
-    public static class Son{
+    public static class Son {
 
         public ArrayList<Haha> hahas;
 
-        public String name;
+        public String name = "son";
         public int age;
 
-        public static class Haha{
+        public static class Haha {
             public boolean flag;
         }
     }
