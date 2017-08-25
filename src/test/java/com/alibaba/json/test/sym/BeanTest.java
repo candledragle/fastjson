@@ -74,8 +74,12 @@ public class BeanTest extends TestCase {
 
         Utils.printLn(json);
 
+
         Person person1 = JSON.parseObject(json, Person.class);
         Utils.printLn(person1.age);
+
+        String properties = JSON.toJSONString(new Properties());
+        Utils.printLn(properties);
 
     }
 
@@ -87,6 +91,7 @@ public class BeanTest extends TestCase {
     public static <E> String generateTestData(final Class<E> clazz1) {
 
         String json = "";
+        final Properties properties = new Properties(); //配置默认值
         try {
             E instance = clazz1.newInstance();
 
@@ -95,49 +100,45 @@ public class BeanTest extends TestCase {
                 public Object process(Object object, String name, Object value) {
                     try {
 
-                        Utils.printLn(object.getClass().getSimpleName());
-
                         Field field = object.getClass().getField(name);
                         Class<?> clazz = field.getType();
 
                         if (clazz == String.class) {
                             if (value == null) {
-                                return "sym";
+                                return properties.aString;
+                            } else {
+                                return value;
                             }
                         } else if (clazz == Integer.TYPE) {
 
-                            return 101;
+                            return properties.aInt;
                         } else if (clazz == Boolean.TYPE) {
 
-                            if (value == null) {
-                                return true;
-                            }
+                            return properties.aBoolean;
 
                         } else if (clazz == Long.TYPE) {
 
-                            return 1001.11;
-                        } else {
-                            if (clazz == ArrayList.class) {
+                            return properties.aLong;
+                        } else if (clazz == ArrayList.class) {
 
-                                Type genericType = field.getGenericType();
-                                if (genericType == null) {
-                                    return null;
-                                }
-
-                                Class genericClazz = null;
-                                if (genericType instanceof ParameterizedType) {
-                                    ParameterizedType pt = (ParameterizedType) genericType;
-                                    genericClazz = (Class) pt.getActualTypeArguments()[0];
-                                }
-                                value = new ArrayList();
-                                List list = (List) value;
-                                for (int i = 0; i < 5; i++) {
-                                    Object child = genericClazz.newInstance();
-                                    list.add(child);
-                                }
-
-                                return value;
+                            Type genericType = field.getGenericType();
+                            if (genericType == null) {
+                                return null;
                             }
+
+                            Class genericClazz = null;
+                            if (genericType instanceof ParameterizedType) {
+                                ParameterizedType pt = (ParameterizedType) genericType;
+                                genericClazz = (Class) pt.getActualTypeArguments()[0];
+                            }
+                            value = new ArrayList();
+                            List list = (List) value;
+                            for (int i = 0; i < 5; i++) {
+                                Object child = genericClazz.newInstance();
+                                list.add(child);
+                            }
+
+                            return value;
                         }
 
                     } catch (NoSuchFieldException e) {
